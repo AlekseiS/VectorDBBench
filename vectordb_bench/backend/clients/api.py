@@ -244,3 +244,15 @@ class VectorDB(ABC):
         Optimize's execution time is limited, the limited time is based on cases.
         """
         raise NotImplementedError
+
+    def rebuild_index(self):
+        """Rebuild index on existing data without reloading.
+
+        This method drops the existing index and creates a new one with the current
+        configuration, without touching the underlying data. Useful for testing
+        different index configurations without reloading data.
+
+        Default implementation raises NotImplementedError. Override in subclasses
+        that support index rebuilding.
+        """
+        raise NotImplementedError(f"{self.name} does not support index rebuilding")

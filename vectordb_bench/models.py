@@ -183,6 +183,7 @@ class TaskStage(StrEnum):
 
     DROP_OLD = "drop_old"
     LOAD = "load"
+    REBUILD_INDEX = "rebuild_index"
     SEARCH_SERIAL = "search_serial"
     SEARCH_CONCURRENT = "search_concurrent"
 

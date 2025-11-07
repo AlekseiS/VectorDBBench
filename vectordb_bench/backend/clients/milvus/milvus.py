@@ -130,8 +130,11 @@ class Milvus(VectorDB):
         # Grab the existing colection with connections
         self.col = Collection(self.collection_name)
 
-        yield
-        connections.disconnect("default")
+        try:
+            yield
+        finally:
+            connections.disconnect("default")
+            self.col = None  # Clean up Collection object to avoid pickling issues
 
     def _optimize(self):
         log.info(f"{self.name} optimizing before search")
@@ -182,6 +185,51 @@ class Milvus(VectorDB):
     def optimize(self, data_size: int | None = None):
         assert self.col, "Please call self.init() before"
         self._optimize()
+
+    def rebuild_index(self):
+        """Drop and rebuild index without touching data"""
+        assert self.col, "Please call self.init() before"
+        log.info(f"{self.name} rebuilding index on existing data")
+
+        # Release collection before dropping index
+        log.info(f"{self.name} releasing collection")
+        self.col.release()
+
+        # Drop existing indexes
+        # Try to drop all indexes by field name
+        try:
+            log.info(f"{self.name} dropping vector index: {self._vector_index_name}")
+            # Use index_name parameter instead of field_name
+            self.col.drop_index(index_name=self._vector_index_name)
+        except Exception as e:
+            log.warning(f"{self.name} no vector index to drop or error: {e}")
+
+        # Drop scalar index if it exists
+        if self.with_scalar_labels:
+            try:
+                log.info(f"{self.name} dropping scalar index on field: {self._scalar_label_field}")
+                # For scalar index, try dropping by field name since we don't have a named index
+                indexes = self.col.indexes
+                for idx in indexes:
+                    if idx.field_name == self._scalar_label_field:
+                        log.info(f"{self.name} found scalar index to drop")
+                        self.col.drop_index(index_name=idx.index_name)
+                        break
+            except Exception as e:
+                log.warning(f"{self.name} no scalar index to drop or error: {e}")
+
+        # Rebuild index and load collection
+        log.info(f"{self.name} creating new index")
+        self._post_insert()
+
+        # Load collection (not with refresh since it was released)
+        log.info(f"{self.name} loading collection")
+        self.col.load()
+
+        log.info(f"{self.name} index rebuilt successfully")
+
+        # Note: Collection will be disconnected and cleaned up by the context manager
+        # The context manager's __exit__ will call connections.disconnect("default")
 
     def need_normalize_cosine(self) -> bool:
         """Wheather this database need to normalize dataset to support COSINE"""

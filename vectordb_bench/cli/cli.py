@@ -130,6 +130,7 @@ def click_arg_split(ctx: click.Context, param: click.core.Option, value: any):  
 def parse_task_stages(
     drop_old: bool,
     load: bool,
+    rebuild_index: bool,
     search_serial: bool,
     search_concurrent: bool,
 ) -> list[TaskStage]:
@@ -138,10 +139,16 @@ def parse_task_stages(
         raise RuntimeError("Dropping old data cannot be skipped if loading data")
     if drop_old and not load:
         raise RuntimeError("Load cannot be skipped if dropping old data")
+    if rebuild_index and load:
+        raise RuntimeError("Cannot rebuild index when loading data (load creates index)")
+    if rebuild_index and drop_old:
+        raise RuntimeError("Cannot rebuild index when dropping old data (will drop index)")
     if drop_old:
         stages.append(TaskStage.DROP_OLD)
     if load:
         stages.append(TaskStage.LOAD)
+    if rebuild_index:
+        stages.append(TaskStage.REBUILD_INDEX)
     if search_serial:
         stages.append(TaskStage.SEARCH_SERIAL)
     if search_concurrent:
@@ -228,6 +235,16 @@ class CommonTypedDict(TypedDict):
             type=bool,
             default=True,
             help="Load or skip",
+            show_default=True,
+        ),
+    ]
+    rebuild_index: Annotated[
+        bool,
+        click.option(
+            "--rebuild-index/--skip-rebuild-index",
+            type=bool,
+            default=False,
+            help="Rebuild index on existing data or skip",
             show_default=True,
         ),
     ]
@@ -640,6 +657,7 @@ def run(
         stages=parse_task_stages(
             (False if not parameters["load"] else parameters["drop_old"]),  # only drop old data if loading new data
             parameters["load"],
+            parameters["rebuild_index"],
             parameters["search_serial"],
             parameters["search_concurrent"],
         ),

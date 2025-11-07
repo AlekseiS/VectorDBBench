@@ -1,5 +1,6 @@
 import concurrent
 import logging
+import time
 import traceback
 from enum import Enum, auto
 
@@ -177,6 +178,16 @@ class CaseRunner(BaseModel):
                     )
                 else:
                     log.info("Data loading skipped")
+
+            if TaskStage.REBUILD_INDEX in self.config.stages:
+                log.info("Rebuilding index on existing data")
+                rebuild_start = time.perf_counter()
+                with self.db.init():
+                    self.db.rebuild_index()
+                rebuild_dur = time.perf_counter() - rebuild_start
+                m.optimize_duration = round(rebuild_dur, 4)
+                log.info(f"Finish rebuilding index, rebuild_duration={rebuild_dur}")
+
             if TaskStage.SEARCH_SERIAL in self.config.stages or TaskStage.SEARCH_CONCURRENT in self.config.stages:
                 self._init_search_runner()
                 if TaskStage.SEARCH_CONCURRENT in self.config.stages:
