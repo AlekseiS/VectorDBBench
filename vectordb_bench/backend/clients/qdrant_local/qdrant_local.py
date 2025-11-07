@@ -152,7 +152,7 @@ class QdrantLocal(VectorDB):
     def insert_embeddings(
         self,
         embeddings: Iterable[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs,
     ) -> tuple[int, Exception]:
         """Insert embeddings into the database.
@@ -203,7 +203,7 @@ class QdrantLocal(VectorDB):
         k: int = 100,
         filters: dict | None = None,
         timeout: int | None = None,
-    ) -> list[int]:
+    ) -> list[int | str]:
         """Perform a search on a query embedding and return results with score.
         Should call self.init() first.
         """

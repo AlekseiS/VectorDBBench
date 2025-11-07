@@ -192,7 +192,7 @@ class TiDB(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs: Any,
     ) -> tuple[int, Exception]:
         workers = 10
@@ -222,7 +222,7 @@ class TiDB(VectorDB):
         filters: dict | None = None,
         timeout: int | None = None,
         **kwargs: Any,
-    ) -> list[int]:
+    ) -> list[int | str]:
         self.cursor.execute(
             f"""
             SELECT id FROM {self.table_name}
@@ -230,4 +230,4 @@ class TiDB(VectorDB):
             """  # noqa: S608
         )
         result = self.cursor.fetchall()
-        return [int(i[0]) for i in result]
+        return [i[0] for i in result]

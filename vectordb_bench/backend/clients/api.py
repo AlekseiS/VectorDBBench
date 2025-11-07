@@ -198,7 +198,7 @@ class VectorDB(ABC):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         labels_data: list[str] | None = None,
         **kwargs,
     ) -> tuple[int, Exception]:
@@ -207,7 +207,7 @@ class VectorDB(ABC):
 
         Args:
             embeddings(list[list[float]]): list of embedding to add to the vector database.
-            metadatas(list[int]): metadata associated with the embeddings, for filtering.
+            metadatas(list[int | str]): metadata (IDs) associated with the embeddings, for filtering.
             **kwargs(Any): vector database specific parameters.
 
         Returns:
@@ -220,7 +220,7 @@ class VectorDB(ABC):
         self,
         query: list[float],
         k: int = 100,
-    ) -> list[int]:
+    ) -> list[int | str]:
         """Get k most similar embeddings to query vector.
 
         Args:
@@ -229,7 +229,7 @@ class VectorDB(ABC):
             filters(dict, optional): filtering expression to filter the data while searching.
 
         Returns:
-            list[int]: list of k most similar embeddings IDs to the query embedding.
+            list[int | str]: list of k most similar embeddings IDs to the query embedding.
         """
         raise NotImplementedError
 

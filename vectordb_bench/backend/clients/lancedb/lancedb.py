@@ -64,7 +64,7 @@ class LanceDB(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs,
     ) -> tuple[int, Exception | None]:
         try:
@@ -80,7 +80,7 @@ class LanceDB(VectorDB):
         query: list[float],
         k: int = 100,
         filters: dict | None = None,
-    ) -> list[int]:
+    ) -> list[int | str]:
         if filters:
             results = self.table.search(query).select(["id"]).where(f"id >= {filters['id']}", prefilter=True).limit(k)
             if self.case_config.index == IndexType.IVFPQ and "nprobes" in self.search_config:
@@ -98,7 +98,7 @@ class LanceDB(VectorDB):
             else:
                 results = results.to_list()
 
-        return [int(result["id"]) for result in results]
+        return [result["id"] for result in results]
 
     def optimize(self, data_size: int | None = None):
         if self.table and hasattr(self, "case_config") and self.case_config.index != IndexType.NONE:

@@ -316,7 +316,7 @@ class Hologres(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs: Any,
     ) -> tuple[int, Exception | None]:
         assert self.conn is not None, "Connection is not initialized"
@@ -375,11 +375,11 @@ class Hologres(VectorDB):
         k: int = 100,
         filters: dict | None = None,
         timeout: int | None = None,
-    ) -> list[int]:
+    ) -> list[int | str]:
         assert self.conn is not None, "Connection is not initialized"
         assert self.cursor is not None, "Cursor is not initialized"
 
         ge = filters.get("id") if filters else None
         q, params = self._compose_query_and_params(query, k, ge)
         result = self.cursor.execute(q, params, prepare=True, binary=True)
-        return [int(i[0]) for i in result.fetchall()]
+        return [i[0] for i in result.fetchall()]

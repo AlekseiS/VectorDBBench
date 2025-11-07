@@ -199,7 +199,7 @@ class AWSOpenSearch(VectorDB):
     def insert_embeddings(
         self,
         embeddings: Iterable[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         labels_data: list[str] | None = None,
         **kwargs,
     ) -> tuple[int, Exception]:
@@ -354,7 +354,7 @@ class AWSOpenSearch(VectorDB):
         query: list[float],
         k: int = 100,
         **kwargs,
-    ) -> list[int]:
+    ) -> list[int | str]:
         """Get k most similar embeddings to query vector.
 
         Args:

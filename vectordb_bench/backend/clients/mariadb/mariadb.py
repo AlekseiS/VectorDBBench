@@ -161,7 +161,7 @@ class MariaDB(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs,
     ) -> tuple[int, Exception]:
         """Insert embeddings into the database.
@@ -194,7 +194,7 @@ class MariaDB(VectorDB):
         filters: dict | None = None,
         timeout: int | None = None,
         **kwargs,
-    ) -> list[int]:
+    ) -> list[int | str]:
         assert self.conn is not None, "Connection is not initialized"
         assert self.cursor is not None, "Cursor is not initialized"
 

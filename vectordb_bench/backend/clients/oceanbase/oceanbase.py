@@ -173,7 +173,7 @@ class OceanBase(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs: Any,
     ) -> tuple[int, Exception | None]:
         if not self._cursor:
@@ -210,7 +210,7 @@ class OceanBase(VectorDB):
         self,
         query: list[float],
         k: int = 100,
-    ) -> list[int]:
+    ) -> list[int | str]:
         if not self._cursor:
             raise ValueError("Cursor is not initialized")
 

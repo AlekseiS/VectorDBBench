@@ -101,7 +101,7 @@ class S3Vectors(VectorDB):
     def insert_embeddings(
         self,
         embeddings: Iterable[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         labels_data: list[str] | None = None,
         **kwargs,
     ) -> tuple[int, Exception]:
@@ -152,7 +152,7 @@ class S3Vectors(VectorDB):
         query: list[float],
         k: int = 100,
         timeout: int | None = None,
-    ) -> list[int]:
+    ) -> list[int | str]:
         """Perform a search on a query embedding and return results."""
         assert self.client is not None
 
@@ -168,4 +168,4 @@ class S3Vectors(VectorDB):
         )
 
         # Organize results.
-        return [int(result["key"]) for result in res["vectors"]]
+        return [result["key"] for result in res["vectors"]]

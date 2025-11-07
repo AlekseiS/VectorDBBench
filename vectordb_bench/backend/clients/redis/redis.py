@@ -101,7 +101,7 @@ class Redis(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs: Any,
     ) -> tuple[int, Exception]:
         """Insert embeddings into the database.
@@ -139,7 +139,7 @@ class Redis(VectorDB):
         filters: dict | None = None,
         timeout: int | None = None,
         **kwargs: Any,
-    ) -> list[int]:
+    ) -> list[int | str]:
         assert self.conn is not None
 
         query_vector = np.array(query).astype(np.float32).tobytes()
@@ -188,4 +188,5 @@ class Redis(VectorDB):
                 )
         res = self.conn.ft(INDEX_NAME).search(query_obj, query_params)
         # doc in res of format {'id': '9831', 'payload': None, 'score': '1.19209289551e-07'}
-        return [int(doc["id"]) for doc in res.docs]
+        # Return the ID as-is (string or int depending on what was stored)
+        return [doc["id"] for doc in res.docs]

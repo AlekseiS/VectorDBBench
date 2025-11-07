@@ -170,7 +170,7 @@ class MemoryDB(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs: Any,
     ) -> tuple[int, Exception | None]:
         """Insert embeddings into the database.
@@ -231,7 +231,7 @@ class MemoryDB(VectorDB):
         filters: dict | None = None,
         timeout: int | None = None,
         **kwargs: Any,
-    ) -> list[int]:
+    ) -> list[int | str]:
         assert self.conn is not None
 
         query_vector = np.array(query).astype(np.float32).tobytes()
@@ -260,4 +260,4 @@ class MemoryDB(VectorDB):
                     Query(f"@metadata:[{metadata_value} +inf]=>[KNN {k} @vector $vec]").return_fields("id").paging(0, k)
                 )
         res = self.conn.ft(INDEX_NAME).search(query_obj, query_params)
-        return [int(doc["id"]) for doc in res.docs]
+        return [doc["id"] for doc in res.docs]

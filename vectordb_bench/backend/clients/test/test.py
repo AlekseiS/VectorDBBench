@@ -39,7 +39,7 @@ class Test(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs: Any,
     ) -> tuple[int, Exception | None]:
         """Insert embeddings into the database.
@@ -54,5 +54,5 @@ class Test(VectorDB):
         filters: dict | None = None,
         timeout: int | None = None,
         **kwargs: Any,
-    ) -> list[int]:
+    ) -> list[int | str]:
         return list(range(k))

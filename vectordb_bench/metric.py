@@ -78,7 +78,7 @@ def isLowerIsBetterMetric(metric: str) -> bool:
     return metric in lower_is_better_metrics
 
 
-def calc_recall(count: int, ground_truth: list[int], got: list[int]) -> float:
+def calc_recall(count: int, ground_truth: list[int | str], got: list[int | str]) -> float:
     recalls = np.zeros(count)
     for i, result in enumerate(got):
         if result in ground_truth:
@@ -95,7 +95,7 @@ def get_ideal_dcg(k: int):
     return ideal_dcg
 
 
-def calc_ndcg(ground_truth: list[int], got: list[int], ideal_dcg: float) -> float:
+def calc_ndcg(ground_truth: list[int | str], got: list[int | str], ideal_dcg: float) -> float:
     dcg = 0
     ground_truth = list(ground_truth)
     for got_id in set(got):

@@ -248,7 +248,7 @@ class AliyunOpenSearch(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs,
     ) -> tuple[int, Exception]:
         """Insert the embeddings to the opensearch."""
@@ -287,7 +287,7 @@ class AliyunOpenSearch(VectorDB):
         query: list[float],
         k: int = 100,
         filters: dict | None = None,
-    ) -> list[int]:
+    ) -> list[int | str]:
         assert self.client is not None, "should self.init() first"
         search_params = '{"proxima.hnsw.searcher.ef":' + str(self.case_config.ef_search) + "}"
 

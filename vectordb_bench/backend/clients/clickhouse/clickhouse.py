@@ -152,7 +152,7 @@ class Clickhouse(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs: Any,
     ) -> (int, Exception):
         assert self.conn is not None, "Connection is not initialized"
@@ -179,7 +179,7 @@ class Clickhouse(VectorDB):
         k: int = 100,
         filters: dict | None = None,
         timeout: int | None = None,
-    ) -> list[int]:
+    ) -> list[int | str]:
         assert self.conn is not None, "Connection is not initialized"
         parameters = {
             "primary_field": self._primary_field,

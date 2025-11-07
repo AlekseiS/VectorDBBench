@@ -436,7 +436,7 @@ class PgVector(VectorDB):
     def insert_embeddings(  # noqa: PLR0912
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         labels_data: list[str] | None = None,
         **kwargs: Any,
     ) -> tuple[int, Exception | None]:
@@ -517,7 +517,7 @@ class PgVector(VectorDB):
         k: int = 100,
         timeout: int | None = None,
         **kwargs: Any,
-    ) -> list[int]:
+    ) -> list[int | str]:
         assert self.conn is not None, "Connection is not initialized"
         assert self.cursor is not None, "Cursor is not initialized"
 
@@ -530,4 +530,4 @@ class PgVector(VectorDB):
             prepare=True,
             binary=True,
         )
-        return [int(i[0]) for i in result.fetchall()]
+        return [i[0] for i in result.fetchall()]

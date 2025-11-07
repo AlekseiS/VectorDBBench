@@ -63,7 +63,7 @@ class ChromaClient(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs: Any,
     ) -> tuple[int, Exception]:
         """Insert embeddings into the database.

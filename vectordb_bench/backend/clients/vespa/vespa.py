@@ -64,7 +64,7 @@ class Vespa(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs,
     ) -> tuple[int, Exception | None]:
         """Insert the embeddings to the vector database. The default number of embeddings for
@@ -89,7 +89,7 @@ class Vespa(VectorDB):
         query: list[float],
         k: int = 100,
         filters: dict | None = None,
-    ) -> list[int]:
+    ) -> list[int | str]:
         """Get k most similar embeddings to query vector.
 
         Args:

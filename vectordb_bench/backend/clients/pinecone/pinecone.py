@@ -67,7 +67,7 @@ class Pinecone(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         labels_data: list[str] | None = None,
         **kwargs,
     ) -> tuple[int, Exception]:
@@ -98,14 +98,14 @@ class Pinecone(VectorDB):
         query: list[float],
         k: int = 100,
         timeout: int | None = None,
-    ) -> list[int]:
+    ) -> list[int | str]:
         pinecone_filters = self.expr
         res = self.index.query(
             top_k=k,
             vector=query,
             filter=pinecone_filters,
         )["matches"]
-        return [int(one_res["id"]) for one_res in res]
+        return [one_res["id"] for one_res in res]
 
     def prepare_filter(self, filters: Filter):
         if filters.type == FilterOp.NonFilter:

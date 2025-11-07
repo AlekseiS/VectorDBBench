@@ -102,7 +102,7 @@ class WeaviateCloud(VectorDB):
     def insert_embeddings(
         self,
         embeddings: Iterable[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs,
     ) -> tuple[int, Exception]:
         """Insert embeddings into Weaviate"""
@@ -133,7 +133,7 @@ class WeaviateCloud(VectorDB):
         k: int = 100,
         filters: dict | None = None,
         timeout: int | None = None,
-    ) -> list[int]:
+    ) -> list[int | str]:
         """Perform a search on a query embedding and return results with distance.
         Should call self.init() first.
         """

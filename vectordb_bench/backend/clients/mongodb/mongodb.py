@@ -128,7 +128,7 @@ class MongoDB(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         **kwargs,
     ) -> (int, Exception | None):
         """Insert embeddings into MongoDB"""
@@ -155,7 +155,7 @@ class MongoDB(VectorDB):
         k: int = 100,
         filters: dict | None = None,
         **kwargs,
-    ) -> list[int]:
+    ) -> list[int | str]:
         """Search for similar vectors"""
         search_params = self.case_config.search_param()
 

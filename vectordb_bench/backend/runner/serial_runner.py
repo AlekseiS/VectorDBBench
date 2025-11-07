@@ -214,7 +214,7 @@ class SerialSearchRunner:
         self,
         db: api.VectorDB,
         test_data: list[list[float]],
-        ground_truth: list[list[int]],
+        ground_truth: list[list[int | str]],
         k: int = 100,
         filters: Filter = non_filter,
     ):
@@ -228,7 +228,7 @@ class SerialSearchRunner:
             self.test_data = test_data
         self.ground_truth = ground_truth
 
-    def _get_db_search_res(self, emb: list[float], retry_idx: int = 0) -> list[int]:
+    def _get_db_search_res(self, emb: list[float], retry_idx: int = 0) -> list[int | str]:
         try:
             results = self.db.search_embedding(emb, self.k)
         except Exception as e:

@@ -43,8 +43,7 @@ class Milvus(VectorDB):
         self.batch_size = int(MILVUS_LOAD_REQS_SIZE / (dim * 4))
         self.with_scalar_labels = with_scalar_labels
 
-        self._primary_field = "pk"
-        self._scalar_id_field = "id"
+        self._primary_field = "id"
         self._scalar_label_field = "label"
         self._vector_field = "vector"
         self._vector_index_name = "vector_idx"
@@ -65,8 +64,9 @@ class Milvus(VectorDB):
 
         if not utility.has_collection(self.collection_name):
             fields = [
-                FieldSchema(self._primary_field, DataType.INT64, is_primary=True),
-                FieldSchema(self._scalar_id_field, DataType.INT64),
+                # Use VARCHAR for string IDs, INT64 for integer IDs
+                # You can make this configurable via db_case_config if needed
+                FieldSchema(self._primary_field, DataType.VARCHAR, is_primary=True, max_length=128),
                 FieldSchema(self._vector_field, DataType.FLOAT_VECTOR, dim=dim),
             ]
             if self.with_scalar_labels:
@@ -103,14 +103,6 @@ class Milvus(VectorDB):
             self._vector_field,
             self.case_config.index_param(),
             index_name=self._vector_index_name,
-        )
-        # scalar index for range-expr (int-filter)
-        col.create_index(
-            self._scalar_id_field,
-            index_params={
-                "index_type": "STL_SORT",
-            },
-            index_name=self._scalar_id_index_name,
         )
         # scalar index for varchar (label-filter)
         if self.with_scalar_labels:
@@ -202,7 +194,7 @@ class Milvus(VectorDB):
     def insert_embeddings(
         self,
         embeddings: Iterable[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         labels_data: list[str] | None = None,
         **kwargs,
     ) -> tuple[int, Exception]:
@@ -231,8 +223,6 @@ class Milvus(VectorDB):
     def prepare_filter(self, filters: Filter):
         if filters.type == FilterOp.NonFilter:
             self.expr = ""
-        elif filters.type == FilterOp.NumGE:
-            self.expr = f"{self._scalar_id_field} >= {filters.int_value}"
         elif filters.type == FilterOp.StrEqual:
             self.expr = f"{self._scalar_label_field} == '{filters.label_value}'"
         else:
@@ -244,7 +234,7 @@ class Milvus(VectorDB):
         query: list[float],
         k: int = 100,
         timeout: int | None = None,
-    ) -> list[int]:
+    ) -> list[int | str]:
         """Perform a search on a query embedding and return results."""
         assert self.col is not None
 
@@ -257,5 +247,5 @@ class Milvus(VectorDB):
             expr=self.expr,
         )
 
-        # Organize results.
+        # Organize results (keep whatever type Milvus returns: int or str).
         return [result.id for result in res[0]]

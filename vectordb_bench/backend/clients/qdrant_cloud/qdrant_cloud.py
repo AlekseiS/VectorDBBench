@@ -158,7 +158,7 @@ class QdrantCloud(VectorDB):
     def insert_embeddings(
         self,
         embeddings: list[list[float]],
-        metadata: list[int],
+        metadata: list[int | str],
         labels_data: list[str] | None = None,
         **kwargs,
     ) -> tuple[int, Exception]:
@@ -192,7 +192,7 @@ class QdrantCloud(VectorDB):
         k: int = 100,
         timeout: int | None = None,
         **kwargs,
-    ) -> list[int]:
+    ) -> list[int | str]:
         """Perform a search on a query embedding and return results with score.
         Should call self.init() first.
         """
