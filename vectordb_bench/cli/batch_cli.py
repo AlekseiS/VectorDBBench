@@ -51,6 +51,7 @@ def build_sub_cmd_args(batch_config: MutableMapping[str, Any] | None):
     bool_options = {
         "drop_old": True,
         "load": True,
+        "rebuild_index": False,
         "search_serial": True,
         "search_concurrent": True,
         "dry_run": False,
@@ -110,12 +111,29 @@ def BatchCli():
 
     for args in args_arr:
         result = runner.invoke(cli, args)
-        time.sleep(5)
 
-        from ..interface import global_result_future
+        from ..interface import benchmark_runner, global_result_future
 
+        # Wait for the background task to complete
         if global_result_future:
             wait([global_result_future])
+
+        # Poll until the running task is cleared, processing signals
+        max_wait = 30  # Maximum 30 seconds
+        waited = 0
+        while benchmark_runner.running_task is not None and waited < max_wait:
+            # Call _try_get_signal to process completion signals from the pipe
+            benchmark_runner._try_get_signal()
+            if benchmark_runner.running_task is None:
+                break
+            time.sleep(0.5)
+            waited += 0.5
+
+        if benchmark_runner.running_task is not None:
+            log.warning(f"Task did not clear after {max_wait} seconds, proceeding anyway")
+
+        # Additional small delay to ensure clean state
+        time.sleep(2)
 
         if result.exception:
             log.exception(f"failed to run sub command: {args[0]}", exc_info=result.exception)
